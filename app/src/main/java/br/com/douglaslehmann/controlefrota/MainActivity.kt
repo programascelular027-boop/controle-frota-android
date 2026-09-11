@@ -19,6 +19,7 @@ import java.util.Calendar
 class MainActivity : Activity() {
     private val prefs by lazy { getSharedPreferences("viagens", Context.MODE_PRIVATE) }
     private lateinit var placa: EditText
+    private lateinit var destino: EditText
     private lateinit var saida: EditText
     private lateinit var chegada: EditText
     private lateinit var kmFinal: EditText
@@ -58,6 +59,9 @@ class MainActivity : Activity() {
 
         placa = campo("Placa do veículo", "ABC1D23")
         root.addView(placa, lp())
+
+        destino = campo("Destino", "Informe o destino")
+        root.addView(destino, lp())
 
         saida = campo("Hora de saída", "00:00")
         saida.isFocusable = false
@@ -127,11 +131,12 @@ class MainActivity : Activity() {
 
     private fun salvarRegistro() {
         val p = placa.text.toString().trim().uppercase()
+        val d = destino.text.toString().trim()
         val s = saida.text.toString().trim()
         val c = chegada.text.toString().trim()
         val km = kmFinal.text.toString().trim()
 
-        if (p.isEmpty() || s.isEmpty() || c.isEmpty() || km.isEmpty()) {
+        if (p.isEmpty() || d.isEmpty() || s.isEmpty() || c.isEmpty() || km.isEmpty()) {
             android.widget.Toast.makeText(this, "Preencha todos os campos.", android.widget.Toast.LENGTH_SHORT).show()
             return
         }
@@ -139,6 +144,7 @@ class MainActivity : Activity() {
         val registros = JSONArray(prefs.getString("registros", "[]"))
         registros.put(JSONObject().apply {
             put("placa", p)
+            put("destino", d)
             put("saida", s)
             put("chegada", c)
             put("km", km)
@@ -146,6 +152,7 @@ class MainActivity : Activity() {
         prefs.edit().putString("registros", registros.toString()).apply()
 
         placa.text.clear()
+        destino.text.clear()
         saida.text.clear()
         chegada.text.clear()
         kmFinal.text.clear()
@@ -164,6 +171,7 @@ class MainActivity : Activity() {
         for (i in registros.length() - 1 downTo 0) {
             val r = registros.getJSONObject(i)
             texto.append("Placa: ").append(r.optString("placa"))
+                .append("\nDestino: ").append(r.optString("destino"))
                 .append("\nSaída: ").append(r.optString("saida"))
                 .append("    Chegada: ").append(r.optString("chegada"))
                 .append("\nKM final: ").append(r.optString("km"))
